@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="#7FFFD4" name="theme-color" />
+<meta property="og:site_name" content="cbsky.app{% if disregard %} - disregard the following if you are not logged in to bsky{% endif %}" />
+<meta property="og:title" content="{{display_name}} (@{{handle}})" />
+<meta property="og:url" content="{{url}}" />
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="{{display_name}} (@{{handle}}) " />
+<meta name="twitter:image" content="{{avatar}}" />
+
+<meta property="og:description" content="{{bio}}" />
+
+<meta http-equiv="refresh" content="0; url = {{url}}" />
+</head>
+<body>
+    Redirecting you to the tweet in a moment. <a href="{{url}}">Or click here.</a>
+</body>
+</html>
