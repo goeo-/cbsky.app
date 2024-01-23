@@ -98,7 +98,7 @@ async def get_post_info(request: Request, profile: str, rkey: str):
                 quoted_display_name = quoted_profile['value']['displayName']
             except KeyError:
                 quoted_display_name = None
-            quote = f'\n\n↘️ Quoting {quoted_display_name} (@{quoted_handle}):\n\n{quoted_post["value"]["text"]}'
+            quote = f'\n\n↘️ Quoting {quoted_display_name} (@{quoted_handle}):\n\n{quoted_post["value"]["text"]}' if 'value' in quoted_post else f'\n\nQuoting deleted skeet from {quoted_display_name} (@{quoted_handle})'
     
     reply = ''
     if 'reply' in post['value']:
