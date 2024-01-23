@@ -93,7 +93,7 @@ async def get_post_info(request: Request, profile: str, rkey: str):
             assert uri_split[3] == 'app.bsky.feed.post'
             quoted_pds, quoted_handle = await get_pds_and_handle(uri_split[2])
             quoted_post = await get_post(quoted_pds, uri_split[2], uri_split[4])
-            quoted_profile = await get_profile(pds, did)
+            quoted_profile = await get_profile(quoted_pds, uri_split[2])
             try:
                 quoted_display_name = quoted_profile['value']['displayName']
             except KeyError:
