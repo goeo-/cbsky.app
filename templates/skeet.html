@@ -9,8 +9,9 @@
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{display_name}} (@{{handle}}) " />
-<meta name="twitter:image" content="{{img_url}}" />
-
+{% for image_url in image_urls %}
+<meta name="twitter:image" content="{{image_url}}" />
+{% endfor %}
 <meta property="og:description" content="{{text}}" />
 
 <meta http-equiv="refresh" content="0; url = {{url}}" />

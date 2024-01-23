@@ -55,7 +55,7 @@ async def get_profile_info(request: Request, profile: str):
     )
 
 @app.get("/profile/{profile}/post/{rkey}")
-async def get_post_info(profile, rkey):
+async def get_post_info(request: Request, profile: str, rkey: str):
     did = None
     if profile.startswith('did:'):
         did = profile
@@ -64,14 +64,6 @@ async def get_post_info(profile, rkey):
 
     pds, handle = await get_pds_and_handle(did)
     profile = await get_profile(pds, did)
-    try:
-        avatar = blob_url(pds, did, profile['value']['avatar']['ref']['$link'])
-    except KeyError:
-        avatar = None
-    try:
-        bio = profile['value']['description']
-    except KeyError:
-        bio = None
     try:
         display_name = profile['value']['displayName']
     except KeyError:
@@ -86,9 +78,47 @@ async def get_post_info(profile, rkey):
     except KeyError:
         pass
     post = await get_post(pds, did, rkey)
+    image_urls = []
+    quote = ''
+    if 'embed' in post['value']:
+        for image in post['value']['embed'].get('images', []) + post['value']['embed'].get('media', {}).get('images', []):
+            image_urls.append(blob_url(pds, did, image['image']['ref']['$link']))
+        if 'record' in post['value']['embed']:
+            record = post['value']['embed']['record']
+            if 'uri' in record:
+                uri_split = record['uri'].split('/')
+            else:
+                uri_split = record['record']['uri'].split('/')
 
-    return f'[disregard: {disregard}] post from {display_name} (@{handle}) [avatar: {avatar}] [bio: {bio}] {post}'
-    # todo embeds, replies
+            assert uri_split[3] == 'app.bsky.feed.post'
+            quoted_pds, quoted_handle = await get_pds_and_handle(uri_split[2])
+            quoted_post = await get_post(quoted_pds, uri_split[2], uri_split[4])
+            quoted_profile = await get_profile(pds, did)
+            try:
+                quoted_display_name = quoted_profile['value']['displayName']
+            except KeyError:
+                quoted_display_name = None
+            quote = f'\n\n↘️ Quoting {quoted_display_name} (@{quoted_handle}):\n\n{quoted_post["value"]["text"]}'
+    
+    reply = ''
+    if 'reply' in post['value']:
+        uri_split = post['value']['reply']['parent']['uri'].split('/')
+        assert uri_split[3] == 'app.bsky.feed.post'
+        _, replied_handle = await get_pds_and_handle(uri_split[2])
+        reply = f'Reply to @{replied_handle}: '
+
+    url = f'https://skychat.social/#thread/{did}/{rkey}' if disregard else f'https://bsky.app/profile/{did}/post/{rkey}'
+
+    return templates.TemplateResponse(
+        request=request, name="skeet.html", context={
+            "disregard": disregard,
+            "display_name": display_name,
+            "handle": handle,
+            "text": reply + post['value']['text'] + quote,
+            "image_urls": image_urls,
+            "url": url
+        }
+    )
 
 dns_resolver = ProxyResolver()
 client = httpx.AsyncClient()
@@ -148,9 +178,3 @@ async def get_post(pds, did, rkey):
 
 def blob_url(pds, did, cid):
     return f'{pds}/xrpc/com.atproto.sync.getBlob?did={did}&cid={cid}'
-
-# text only
-# reply
-# qrs
-# image
-# qrs with image
