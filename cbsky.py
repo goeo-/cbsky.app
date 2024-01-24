@@ -133,7 +133,7 @@ async def resolve_handle(handle):
         assert data.startswith('did=')
         return data[4:]
     try:
-        res = await client.get(f'https://{handle}/xrpc/com.atproto.identity.resolveHandle?handle={handle}')
+        res = await client.get(f'https://{handle}/.well-known/atproto-did')
     except Exception:
         raise CannotResolveHandleException
     try:
