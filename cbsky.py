@@ -136,11 +136,9 @@ async def resolve_handle(handle):
         res = await client.get(f'https://{handle}/.well-known/atproto-did')
     except Exception:
         raise CannotResolveHandleException
-    try:
-        assert res.text.startswith('did:')
-        return res.text
-    except (KeyError, json.decoder.JSONDecodeError):
-        raise CannotResolveHandleException
+
+    assert res.text.startswith('did:')
+    return res.text
 
 class InvalidDIDException(Exception):
     pass
