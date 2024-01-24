@@ -130,7 +130,7 @@ async def resolve_handle(handle):
     res, _ = await dns_resolver.query('_atproto.' + handle, DNSType.TXT)
     if len(res.an) >= 1:
         data = res.an[0].data.data
-        assert data.startswith('did=')
+        assert data.startswith('did=did:')
         return data[4:]
     try:
         res = await client.get(f'https://{handle}/.well-known/atproto-did')
