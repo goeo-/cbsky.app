@@ -137,7 +137,8 @@ async def resolve_handle(handle):
     except Exception:
         raise CannotResolveHandleException
     try:
-        return res.json()['did']
+        assert res.text.startswith('did:')
+        return res.text
     except (KeyError, json.decoder.JSONDecodeError):
         raise CannotResolveHandleException
 
